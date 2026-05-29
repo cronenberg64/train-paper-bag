@@ -1,0 +1,19 @@
+# Python virtual environment
+venv/
+
+# Original HEIC files (excluded as requested)
+raw_heic/
+
+# YOLO pre-trained and trained models
+*.pt
+paper_bag_runs/
+yolo_dataset/
+test_predictions/
+
+# Pycache and python outputs
+__pycache__/
+*.pyc
+
+# OS-specific files
+.DS_Store
+Thumbs.db

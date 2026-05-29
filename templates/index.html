@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Bag Labeller Pro</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0c10;
+            --bg-secondary: #121620;
+            --bg-tertiary: #1a1f2c;
+            --border-color: #2a3142;
+            --text-primary: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent: #6366f1; /* Electric Indigo */
+            --accent-glow: rgba(99, 102, 241, 0.4);
+            --success: #10b981; /* Emerald */
+            --warning: #f59e0b; /* Amber */
+            --danger: #f43f5e; /* Rose */
+            
+            --font-main: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        .logo i {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .badge-pro {
+            background: linear-gradient(135deg, var(--accent), #818cf8);
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .header-stats {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-val {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .unsaved-badge {
+            background-color: var(--warning);
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            display: none;
+            align-items: center;
+            gap: 0.35rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        /* Layout Main Containers */
+        .app-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar Style */
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem 0.5rem 2rem;
+            color: #fff;
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 5px rgba(99, 102, 241, 0.2);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            background-color: var(--bg-primary);
+            border-radius: 6px;
+            padding: 2px;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .filter-tab.active {
+            background-color: var(--bg-tertiary);
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .image-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .image-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .image-list::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .image-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 0.25rem;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .image-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .image-item.active {
+            background-color: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .image-item-thumb {
+            width: 48px;
+            height: 36px;
+            background-color: var(--bg-primary);
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .image-item-info {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .image-item-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.labeled {
+            background-color: var(--success);
+            box-shadow: 0 0 6px var(--success);
+        }
+
+        .status-dot.unlabeled {
+            background-color: var(--text-muted);
+        }
+
+        /* Canvas Workspace Area */
+        .workspace {
+            flex: 1;
+            background-color: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .canvas-container-wrapper {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #image-to-label {
+            display: block;
+            max-width: 100%;
+            max-height: 75vh;
+            pointer-events: none;
+        }
+
+        #draw-surface {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+            z-index: 5;
+        }
+
+        /* Bounding Box Styling */
+        .bbox-element {
+            position: absolute;
+            border: 2px solid var(--accent);
+            background-color: rgba(99, 102, 241, 0.15);
+            z-index: 6;
+            cursor: move;
+            transition: border-color 0.15s, background-color 0.15s;
+        }
+
+        .bbox-element:hover {
+            background-color: rgba(99, 102, 241, 0.25);
+            border-color: #818cf8;
+        }
+
+        .bbox-element.active {
+            border-color: var(--warning);
+            background-color: rgba(245, 158, 11, 0.2);
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+        }
+
+        .bbox-label {
+            position: absolute;
+            top: -22px;
+            left: -2px;
+            background-color: var(--accent);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 3px 3px 0 0;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .bbox-element.active .bbox-label {
+            background-color: var(--warning);
+            color: #000;
+        }
+
+        /* Delete Button inside BBox */
+        .bbox-delete-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 10;
+        }
+
+        .bbox-element:hover .bbox-delete-btn {
+            opacity: 1;
+        }
+
+        /* Resize handles */
+        .resize-handle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border: 1px solid var(--accent);
+            z-index: 8;
+        }
+
+        .bbox-element.active .resize-handle {
+            border-color: var(--warning);
+        }
+
+        .handle-nw { top: -4px; left: -4px; cursor: nwse-resize; }
+        .handle-ne { top: -4px; right: -4px; cursor: nesw-resize; }
+        .handle-sw { bottom: -4px; left: -4px; cursor: nesw-resize; }
+        .handle-se { bottom: -4px; right: -4px; cursor: nwse-resize; }
+
+        /* Temporary box being drawn */
+        .temp-bbox {
+            position: absolute;
+            border: 2px dashed var(--accent);
+            background-color: rgba(99, 102, 241, 0.05);
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        /* Right Panel Details Panel */
+        .details-panel {
+            width: 300px;
+            background-color: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 1rem;
+            gap: 1.25rem;
+        }
+
+        .panel-section {
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            padding: 0.85rem;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        /* Progress Card */
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--bg-primary);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), #818cf8);
+            border-radius: 9999px;
+            transition: width 0.4s ease;
+        }
+
+        /* Action Buttons Grid */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: var(--font-main);
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            color: #fff;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-primary);
+            border-color: var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .btn-danger {
+            background-color: rgba(244, 63, 94, 0.15);
+            border-color: rgba(244, 63, 94, 0.3);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: rgba(244, 63, 94, 0.25);
+        }
+
+        .btn-full {
+            grid-column: span 2;
+        }
+
+        /* Hotkey Legend */
+        .hotkey-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .hotkey-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.75rem;
+        }
+
+        .hotkey-key {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .hotkey-desc {
+            color: var(--text-muted);
+        }
+
+        /* Label List in Right Panel */
+        .labels-list-container {
+            max-height: 180px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+        }
+
+        .label-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-primary);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        .label-list-item:hover {
+            border-color: var(--border-color);
+        }
+
+        .label-list-item.active {
+            border-color: var(--warning);
+            background-color: rgba(245, 158, 11, 0.05);
+        }
+
+        /* Spinner for loading */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border-left-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 12, 16, 0.8);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fa-solid fa-box-open"></i>
+            <span>Paper Bag Labeller</span>
+            <span class="badge-pro">Pro</span>
+        </div>
+        
+        <div class="header-stats">
+            <div class="unsaved-badge" id="unsaved-badge">
+                <i class="fa-solid fa-triangle-exclamation"></i> Unsaved Changes
+            </div>
+            <div class="stat-item">
+                <span class="stat-desc">Progress:</span>
+                <span class="stat-val" id="header-progress-text">0/0 (0%)</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        
+        <!-- Left Sidebar: Images List -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="image-search" placeholder="Search images...">
+                </div>
+                <div class="filter-tabs">
+                    <div class="filter-tab active" data-filter="all">All</div>
+                    <div class="filter-tab" data-filter="unlabeled">Unlabeled</div>
+                    <div class="filter-tab" data-filter="labeled">Labeled</div>
+                </div>
+            </div>
+            <div class="image-list" id="image-list-container">
+                <!-- Image items will be loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Center Workspace: Bounding Box Draw Area -->
+        <div class="workspace">
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="spinner"></div>
+                <div style="font-size: 0.9rem; color: var(--text-muted);">Loading dataset...</div>
+            </div>
+            
+            <div class="canvas-container-wrapper" id="canvas-wrapper" style="display: none;">
+                <img id="image-to-label" src="" alt="Load Image">
+                <div id="draw-surface"></div>
+                <!-- Box elements will be rendered dynamically here -->
+            </div>
+        </div>
+
+        <!-- Right Panel: Label details, Stats & Hotkeys -->
+        <div class="details-panel">
+            
+            <!-- Dataset Progress -->
+            <div class="panel-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dataset Progress</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                    <span class="stat-desc">Labeled</span>
+                    <span class="stat-val" id="progress-val">0 / 0</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Bounding Boxes List -->
+            <div class="panel-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Boxes on Image</span>
+                </div>
+                <div id="boxes-info-text" style="font-size: 0.75rem; color: var(--text-muted);">
+                    No boxes drawn yet. Click & drag on image to create a bounding box.
+                </div>
+                <div class="labels-list-container" id="labels-list">
+                    <!-- Dynamic list of boxes -->
+                </div>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="panel-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Controls</span>
+                </div>
+                <div class="action-grid">
+                    <button class="btn btn-secondary" id="btn-prev">
+                        <i class="fa-solid fa-arrow-left"></i> Prev
+                    </button>
+                    <button class="btn btn-secondary" id="btn-next">
+                        <i class="fa-solid fa-arrow-right"></i> Next
+                    </button>
+                    <button class="btn btn-danger" id="btn-clear" style="margin-top: 0.25rem;">
+                        <i class="fa-solid fa-trash-can"></i> Clear All
+                    </button>
+                    <button class="btn btn-primary" id="btn-save" style="margin-top: 0.25rem;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save (S)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Keyboard Hotkeys -->
+            <div class="panel-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-keyboard"></i>
+                    <span>Keyboard Hotkeys</span>
+                </div>
+                <div class="hotkey-list">
+                    <div class="hotkey-row">
+                        <span class="hotkey-desc">Draw Box</span>
+                        <span class="hotkey-key">Drag Mouse</span>
+                    </div>
+                    <div class="hotkey-row">
+                        <span class="hotkey-desc">Save / Commit</span>
+                        <span class="hotkey-key">S</span> or <span class="hotkey-key">Enter</span>
+                    </div>
+                    <div class="hotkey-row">
+                        <span class="hotkey-desc">Next Image</span>
+                        <span class="hotkey-key">D</span> or <span class="hotkey-key">→</span>
+                    </div>
+                    <div class="hotkey-row">
+                        <span class="hotkey-desc">Prev Image</span>
+                        <span class="hotkey-key">A</span> or <span class="hotkey-key">←</span>
+                    </div>
+                    <div class="hotkey-row">
+                        <span class="hotkey-desc">Delete Selected</span>
+                        <span class="hotkey-key">Delete</span>
+                    </div>
+                    <div class="hotkey-row">
+                        <span class="hotkey-desc">Clear Canvas</span>
+                        <span class="hotkey-key">C</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // App State
+        let state = {
+            images: [],
+            filteredImages: [],
+            currentImageIndex: -1,
+            currentImageFilename: '',
+            boxes: [], // Bounding boxes for current image {class_id: 0, x_center, y_center, width, height}
+            selectedIndex: -1,
+            isDirty: false,
+            filter: 'all',
+            searchQuery: '',
+            
+            // Mouse drawing interaction variables
+            isDrawing: false,
+            startX: 0,
+            startY: 0,
+            
+            // Mouse box drag interaction variables
+            isDragging: false,
+            draggedBoxIndex: -1,
+            dragOffset: { x: 0, y: 0 },
+            
+            // Resizing variables
+            isResizing: false,
+            resizeIndex: -1,
+            resizeDirection: '' // 'nw', 'ne', 'sw', 'se'
+        };
+
+        // DOM elements
+        const imageListContainer = document.getElementById('image-list-container');
+        const imgElement = document.getElementById('image-to-label');
+        const drawSurface = document.getElementById('draw-surface');
+        const canvasWrapper = document.getElementById('canvas-wrapper');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const unsavedBadge = document.getElementById('unsaved-badge');
+        const progressVal = document.getElementById('progress-val');
+        const progressFill = document.getElementById('progress-fill');
+        const headerProgressText = document.getElementById('header-progress-text');
+        const labelsList = document.getElementById('labels-list');
+        const boxesInfoText = document.getElementById('boxes-info-text');
+        const imageSearch = document.getElementById('image-search');
+        
+        // Buttons
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnSave = document.getElementById('btn-save');
+        const btnClear = document.getElementById('btn-clear');
+
+        // Init App
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchImages();
+            setupEventListeners();
+        });
+
+        // Fetch dataset list
+        function fetchImages() {
+            fetch('/api/images')
+                .then(res => res.json())
+                .then(images => {
+                    state.images = images;
+                    filterAndRenderImageList();
+                    updateStats();
+                    
+                    // Auto-load first image if available
+                    if (images.length > 0) {
+                        loadImageIndex(0);
+                    } else {
+                        loadingOverlay.innerHTML = '<div style="color: var(--danger); font-weight: 600;">No converted images found.</div>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching images:', err);
+                    loadingOverlay.innerHTML = '<div style="color: var(--danger); font-weight: 600;">Failed to load images from server.</div>';
+                });
+        }
+
+        function updateStats() {
+            fetch('/api/stats')
+                .then(res => res.json())
+                .then(stats => {
+                    const percentage = stats.total > 0 ? Math.round((stats.labeled / stats.total) * 100) : 0;
+                    progressVal.innerText = `${stats.labeled} / ${stats.total}`;
+                    progressFill.style.width = `${percentage}%`;
+                    headerProgressText.innerText = `${stats.labeled} / ${stats.total} (${percentage}%)`;
+                });
+        }
+
+        // Render Sidebar List
+        function filterAndRenderImageList() {
+            state.filteredImages = state.images.filter(img => {
+                const matchesSearch = img.filename.toLowerCase().includes(state.searchQuery.toLowerCase());
+                if (state.filter === 'all') return matchesSearch;
+                if (state.filter === 'labeled') return matchesSearch && img.labeled;
+                if (state.filter === 'unlabeled') return matchesSearch && !img.labeled;
+                return matchesSearch;
+            });
+
+            imageListContainer.innerHTML = '';
+            state.filteredImages.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = `image-item ${img.filename === state.currentImageFilename ? 'active' : ''}`;
+                
+                const dotClass = img.labeled ? 'labeled' : 'unlabeled';
+                
+                item.innerHTML = `
+                    <div class="image-item-thumb" style="background-image: url('/images/${img.filename}')"></div>
+                    <div class="image-item-info">
+                        <div class="image-item-name">${img.filename}</div>
+                    </div>
+                    <div class="status-dot ${dotClass}"></div>
+                `;
+                
+                item.addEventListener('click', () => {
+                    const mainIndex = state.images.findIndex(i => i.filename === img.filename);
+                    if (mainIndex !== -1) {
+                        checkUnsavedChanges(() => loadImageIndex(mainIndex));
+                    }
+                });
+                
+                imageListContainer.appendChild(item);
+            });
+        }
+
+        // Load image by index in main state.images array
+        function loadImageIndex(index) {
+            if (index < 0 || index >= state.images.length) return;
+            
+            // Set index
+            state.currentImageIndex = index;
+            state.currentImageFilename = state.images[index].filename;
+            
+            // Mark loading
+            loadingOverlay.style.display = 'flex';
+            canvasWrapper.style.display = 'none';
+            
+            // Fetch BBoxes
+            fetch(`/api/image/${state.currentImageFilename}`)
+                .then(res => res.json())
+                .then(data => {
+                    state.boxes = data.boxes || [];
+                    state.selectedIndex = -1;
+                    setDirty(false);
+                    
+                    // Render image
+                    imgElement.src = `/images/${state.currentImageFilename}`;
+                    
+                    // Wait for image size to load before displaying
+                    imgElement.onload = () => {
+                        loadingOverlay.style.display = 'none';
+                        canvasWrapper.style.display = 'block';
+                        renderBBoxes();
+                        highlightActiveSidebarItem();
+                    };
+                });
+        }
+
+        function highlightActiveSidebarItem() {
+            // Update active item styling in sidebar
+            const items = imageListContainer.querySelectorAll('.image-item');
+            items.forEach(item => {
+                const name = item.querySelector('.image-item-name').innerText;
+                if (name === state.currentImageFilename) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Save active image annotations
+        function saveCurrentAnnotations(callback = null) {
+            const payload = {
+                filename: state.currentImageFilename,
+                boxes: state.boxes
+            };
+
+            fetch('/api/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    setDirty(false);
+                    // Mark as labeled in sidebar state
+                    state.images[state.currentImageIndex].labeled = true;
+                    
+                    // Update UI list and stats
+                    filterAndRenderImageList();
+                    updateStats();
+                    
+                    if (callback) callback();
+                } else {
+                    alert('Error saving labels: ' + (res.error || 'unknown'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Connection error while saving labels.');
+            });
+        }
+
+        function setDirty(isDirty) {
+            state.isDirty = isDirty;
+            if (isDirty) {
+                unsavedBadge.style.display = 'inline-flex';
+                btnSave.classList.remove('btn-secondary');
+                btnSave.classList.add('btn-primary');
+            } else {
+                unsavedBadge.style.display = 'none';
+                btnSave.classList.remove('btn-primary');
+                btnSave.classList.add('btn-secondary');
+            }
+        }
+
+        function checkUnsavedChanges(proceedCallback) {
+            if (state.isDirty) {
+                if (confirm('You have unsaved changes. Do you want to save them before moving?')) {
+                    saveCurrentAnnotations(proceedCallback);
+                } else {
+                    setDirty(false);
+                    proceedCallback();
+                }
+            } else {
+                proceedCallback();
+            }
+        }
+
+        // Render Bounding Boxes on overlay DOM
+        function renderBBoxes() {
+            // Remove previous boxes, keeping img and draw-surface
+            const prevBoxes = canvasWrapper.querySelectorAll('.bbox-element, .temp-bbox');
+            prevBoxes.forEach(el => el.remove());
+
+            const containerWidth = canvasWrapper.clientWidth;
+            const containerHeight = canvasWrapper.clientHeight;
+
+            if (state.boxes.length === 0) {
+                boxesInfoText.style.display = 'block';
+                labelsList.innerHTML = '';
+                return;
+            }
+
+            boxesInfoText.style.display = 'none';
+            labelsList.innerHTML = '';
+
+            state.boxes.forEach((box, idx) => {
+                // Convert relative [x_center, y_center, width, height] to absolute style attributes
+                // YOLO: x_center, y_center, width, height (normalized 0 to 1)
+                const widthPx = box.width * containerWidth;
+                const heightPx = box.height * containerHeight;
+                const leftPx = (box.x_center - box.width / 2) * containerWidth;
+                const topPx = (box.y_center - box.height / 2) * containerHeight;
+
+                const bboxEl = document.createElement('div');
+                bboxEl.className = `bbox-element ${idx === state.selectedIndex ? 'active' : ''}`;
+                bboxEl.style.left = `${leftPx}px`;
+                bboxEl.style.top = `${topPx}px`;
+                bboxEl.style.width = `${widthPx}px`;
+                bboxEl.style.height = `${heightPx}px`;
+                bboxEl.dataset.index = idx;
+
+                // Add Label
+                const labelBadge = document.createElement('div');
+                labelBadge.className = 'bbox-label';
+                labelBadge.innerText = `paper_bag [${idx + 1}]`;
+                bboxEl.appendChild(labelBadge);
+
+                // Add Delete Btn
+                const delBtn = document.createElement('div');
+                delBtn.className = 'bbox-delete-btn';
+                delBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteBox(idx);
+                });
+                bboxEl.appendChild(delBtn);
+
+                // Add Resize Handles (only if active/selected)
+                if (idx === state.selectedIndex) {
+                    ['nw', 'ne', 'sw', 'se'].forEach(dir => {
+                        const handle = document.createElement('div');
+                        handle.className = `resize-handle handle-${dir}`;
+                        handle.addEventListener('mousedown', (e) => {
+                            e.stopPropagation();
+                            startResize(e, idx, dir);
+                        });
+                        bboxEl.appendChild(handle);
+                    });
+                }
+
+                // Mouse interaction listeners on the bbox box
+                bboxEl.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    selectBox(idx);
+                    startDragBox(e, idx);
+                });
+
+                canvasWrapper.appendChild(bboxEl);
+
+                // Sidebar Box Item List
+                const listItem = document.createElement('div');
+                listItem.className = `label-list-item ${idx === state.selectedIndex ? 'active' : ''}`;
+                listItem.innerHTML = `
+                    <span style="font-weight: 500;">
+                        <i class="fa-solid fa-square-full" style="color: ${idx === state.selectedIndex ? 'var(--warning)' : 'var(--accent)'}; font-size: 0.65rem; margin-right: 0.4rem;"></i>
+                        Bag #${idx + 1}
+                    </span>
+                    <i class="fa-solid fa-trash-can" style="color: var(--danger); cursor: pointer;" onclick="deleteBox(${idx})"></i>
+                `;
+                listItem.addEventListener('click', () => {
+                    selectBox(idx);
+                });
+                labelsList.appendChild(listItem);
+            });
+        }
+
+        // Selection & Deletion
+        function selectBox(idx) {
+            state.selectedIndex = idx;
+            renderBBoxes();
+        }
+
+        function deleteBox(idx) {
+            state.boxes.splice(idx, 1);
+            if (state.selectedIndex === idx) {
+                state.selectedIndex = -1;
+            } else if (state.selectedIndex > idx) {
+                state.selectedIndex--;
+            }
+            setDirty(true);
+            renderBBoxes();
+        }
+
+        function clearAllBoxes() {
+            if (state.boxes.length > 0) {
+                if (confirm('Clear all bounding boxes on this image?')) {
+                    state.boxes = [];
+                    state.selectedIndex = -1;
+                    setDirty(true);
+                    renderBBoxes();
+                }
+            }
+        }
+
+        // Bounding Box Dragging Interaction
+        function startDragBox(e, idx) {
+            state.isDragging = true;
+            state.draggedBoxIndex = idx;
+            
+            // Get mouse click coordinates relative to the bbox top-left corner
+            const rect = canvasWrapper.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            const box = state.boxes[idx];
+            const containerWidth = canvasWrapper.clientWidth;
+            const containerHeight = canvasWrapper.clientHeight;
+            
+            const boxLeft = (box.x_center - box.width / 2) * containerWidth;
+            const boxTop = (box.y_center - box.height / 2) * containerHeight;
+            
+            state.dragOffset.x = mouseX - boxLeft;
+            state.dragOffset.y = mouseY - boxTop;
+        }
+
+        // Resizing Interaction
+        function startResize(e, idx, dir) {
+            state.isResizing = true;
+            state.resizeIndex = idx;
+            state.resizeDirection = dir;
+        }
+
+        // Drawing Box Events on Workspace Draw Surface
+        drawSurface.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            state.selectedIndex = -1;
+            renderBBoxes(); // deselect
+
+            const rect = canvasWrapper.getBoundingClientRect();
+            state.isDrawing = true;
+            state.startX = e.clientX - rect.left;
+            state.startY = e.clientY - rect.top;
+
+            // Add temp rectangle element
+            const tempBox = document.createElement('div');
+            tempBox.className = 'temp-bbox';
+            tempBox.id = 'temp-draw-box';
+            tempBox.style.left = `${state.startX}px`;
+            tempBox.style.top = `${state.startY}px`;
+            canvasWrapper.appendChild(tempBox);
+        });
+
+        // Global Mouse Move and Mouse Up Listeners on window to make interaction robust
+        window.addEventListener('mousemove', (e) => {
+            const rect = canvasWrapper.getBoundingClientRect();
+            const containerWidth = canvasWrapper.clientWidth;
+            const containerHeight = canvasWrapper.clientHeight;
+            
+            // Constrain mouse position inside canvasWrapper
+            const mouseX = Math.max(0, Math.min(e.clientX - rect.left, containerWidth));
+            const mouseY = Math.max(0, Math.min(e.clientY - rect.top, containerHeight));
+
+            if (state.isDrawing) {
+                const tempBox = document.getElementById('temp-draw-box');
+                if (tempBox) {
+                    const left = Math.min(state.startX, mouseX);
+                    const top = Math.min(state.startY, mouseY);
+                    const width = Math.abs(state.startX - mouseX);
+                    const height = Math.abs(state.startY - mouseY);
+
+                    tempBox.style.left = `${left}px`;
+                    tempBox.style.top = `${top}px`;
+                    tempBox.style.width = `${width}px`;
+                    tempBox.style.height = `${height}px`;
+                }
+            } 
+            else if (state.isDragging && state.draggedBoxIndex !== -1) {
+                const box = state.boxes[state.draggedBoxIndex];
+                
+                // Calculate new top-left corner in pixels
+                let newLeft = mouseX - state.dragOffset.x;
+                let newTop = mouseY - state.dragOffset.y;
+                
+                const boxWidthPx = box.width * containerWidth;
+                const boxHeightPx = box.height * containerHeight;
+                
+                // Keep box inside boundaries
+                newLeft = Math.max(0, Math.min(newLeft, containerWidth - boxWidthPx));
+                newTop = Math.max(0, Math.min(newTop, containerHeight - boxHeightPx));
+                
+                // Convert back to YOLO normalized center coordinates
+                box.x_center = (newLeft + boxWidthPx / 2) / containerWidth;
+                box.y_center = (newTop + boxHeightPx / 2) / containerHeight;
+                
+                setDirty(true);
+                
+                // Render immediately (no full redraw for smoothness)
+                const bboxEl = canvasWrapper.querySelector(`.bbox-element[data-index="${state.draggedBoxIndex}"]`);
+                if (bboxEl) {
+                    bboxEl.style.left = `${newLeft}px`;
+                    bboxEl.style.top = `${newTop}px`;
+                }
+            }
+            else if (state.isResizing && state.resizeIndex !== -1) {
+                const box = state.boxes[state.resizeIndex];
+                const dir = state.resizeDirection;
+                
+                // Get current pixel borders
+                let x1 = (box.x_center - box.width / 2) * containerWidth;
+                let y1 = (box.y_center - box.height / 2) * containerHeight;
+                let x2 = (box.x_center + box.width / 2) * containerWidth;
+                let y2 = (box.y_center + box.height / 2) * containerHeight;
+                
+                const minSize = 15; // Minimum box size in pixels
+                
+                if (dir.includes('n')) y1 = Math.min(mouseY, y2 - minSize);
+                if (dir.includes('s')) y2 = Math.max(mouseY, y1 + minSize);
+                if (dir.includes('w')) x1 = Math.min(mouseX, x2 - minSize);
+                if (dir.includes('e')) x2 = Math.max(mouseX, x1 + minSize);
+                
+                // Constrain values inside container boundaries
+                x1 = Math.max(0, x1);
+                y1 = Math.max(0, y1);
+                x2 = Math.min(containerWidth, x2);
+                y2 = Math.min(containerHeight, y2);
+                
+                // Recalculate YOLO normalized box parameters
+                box.width = (x2 - x1) / containerWidth;
+                box.height = (y2 - y1) / containerHeight;
+                box.x_center = (x1 + x2) / (2 * containerWidth);
+                box.y_center = (y1 + y2) / (2 * containerHeight);
+                
+                setDirty(true);
+                
+                // Render immediately
+                const bboxEl = canvasWrapper.querySelector(`.bbox-element[data-index="${state.resizeIndex}"]`);
+                if (bboxEl) {
+                    bboxEl.style.left = `${x1}px`;
+                    bboxEl.style.top = `${y1}px`;
+                    bboxEl.style.width = `${x2 - x1}px`;
+                    bboxEl.style.height = `${y2 - y1}px`;
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            const containerWidth = canvasWrapper.clientWidth;
+            const containerHeight = canvasWrapper.clientHeight;
+
+            if (state.isDrawing) {
+                state.isDrawing = false;
+                const tempBox = document.getElementById('temp-draw-box');
+                if (tempBox) {
+                    const rect = canvasWrapper.getBoundingClientRect();
+                    const mouseX = Math.max(0, Math.min(e.clientX - rect.left, containerWidth));
+                    const mouseY = Math.max(0, Math.min(e.clientY - rect.top, containerHeight));
+
+                    const left = Math.min(state.startX, mouseX);
+                    const top = Math.min(state.startY, mouseY);
+                    const width = Math.abs(state.startX - mouseX);
+                    const height = Math.abs(state.startY - mouseY);
+
+                    tempBox.remove();
+
+                    // Only save box if it has a minimum size (e.g., 10px) to prevent tiny clicks
+                    if (width > 10 && height > 10) {
+                        const newBox = {
+                            class_id: 0, // 'paper_bag'
+                            x_center: (left + width / 2) / containerWidth,
+                            y_center: (top + height / 2) / containerHeight,
+                            width: width / containerWidth,
+                            height: height / containerHeight
+                        };
+                        
+                        state.boxes.push(newBox);
+                        state.selectedIndex = state.boxes.length - 1;
+                        setDirty(true);
+                        renderBBoxes();
+                    }
+                }
+            }
+            
+            if (state.isDragging) {
+                state.isDragging = false;
+                state.draggedBoxIndex = -1;
+                renderBBoxes(); // full redraw to sync list panel
+            }
+
+            if (state.isResizing) {
+                state.isResizing = false;
+                state.resizeIndex = -1;
+                state.resizeDirection = '';
+                renderBBoxes(); // full redraw to sync list panel
+            }
+        });
+
+        // Setup Buttons and Input Listeners
+        function setupEventListeners() {
+            // Filter Tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    state.filter = tab.dataset.filter;
+                    filterAndRenderImageList();
+                });
+            });
+
+            // Search
+            imageSearch.addEventListener('input', (e) => {
+                state.searchQuery = e.target.value;
+                filterAndRenderImageList();
+            });
+
+            // Controls
+            btnPrev.addEventListener('click', () => {
+                navigate(-1);
+            });
+
+            btnNext.addEventListener('click', () => {
+                navigate(1);
+            });
+
+            btnSave.addEventListener('click', () => {
+                saveCurrentAnnotations();
+            });
+
+            btnClear.addEventListener('click', () => {
+                clearAllBoxes();
+            });
+
+            // Navigation and Hotkey listeners
+            window.addEventListener('keydown', (e) => {
+                // Ignore keys if user is typing inside the search input box
+                if (document.activeElement === imageSearch) return;
+
+                const key = e.key.toLowerCase();
+                
+                if (key === 's' || e.key === 'Enter') {
+                    e.preventDefault();
+                    saveCurrentAnnotations();
+                } 
+                else if (key === 'd' || e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    navigate(1);
+                } 
+                else if (key === 'a' || e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    navigate(-1);
+                } 
+                else if (key === 'delete' || e.key === 'Backspace') {
+                    if (state.selectedIndex !== -1) {
+                        e.preventDefault();
+                        deleteBox(state.selectedIndex);
+                    }
+                }
+                else if (key === 'c') {
+                    e.preventDefault();
+                    clearAllBoxes();
+                }
+            });
+
+            // Adjust bounding box render layout when window resizing occurs
+            window.addEventListener('resize', () => {
+                if (state.currentImageFilename) {
+                    renderBBoxes();
+                }
+            });
+        }
+
+        // Next / Prev Navigation
+        function navigate(dir) {
+            if (state.filteredImages.length <= 1) return;
+            
+            // Find current filename in the filteredImages list to move relative to it
+            const curFilteredIdx = state.filteredImages.findIndex(img => img.filename === state.currentImageFilename);
+            if (curFilteredIdx === -1) return;
+            
+            let nextFilteredIdx = curFilteredIdx + dir;
+            if (nextFilteredIdx >= state.filteredImages.length) nextFilteredIdx = 0;
+            if (nextFilteredIdx < 0) nextFilteredIdx = state.filteredImages.length - 1;
+            
+            const nextFilename = state.filteredImages[nextFilteredIdx].filename;
+            const mainIndex = state.images.findIndex(img => img.filename === nextFilename);
+            
+            if (mainIndex !== -1) {
+                checkUnsavedChanges(() => loadImageIndex(mainIndex));
+            }
+        }
+    </script>
+</body>
+</html>
