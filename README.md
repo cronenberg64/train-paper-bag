@@ -1,10 +1,10 @@
-# Paper Bag Detection & Training Pipeline 🛍️
+# Paper Bag Detection & Training Pipeline
 
 This repository contains a complete pipeline for training a custom object detection model to detect and draw bounding boxes around paper bags. It includes optimized image preprocessing, a local web-based interactive labeling app, and a GPU-accelerated YOLO training script.
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 paper_bag_dataset/
@@ -22,7 +22,7 @@ paper_bag_dataset/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Prerequisites & Installation
 
@@ -57,7 +57,7 @@ To convert the raw HEIC photos to standard, web-friendly JPEG files while sizing
 
 ---
 
-## 🏷️ Bounding Box Labelling App
+## Bounding Box Labelling App
 
 We provide a beautiful local web application to draw bounding boxes and save them in YOLO format.
 
@@ -89,7 +89,7 @@ Open your browser and navigate to: **`http://127.0.0.1:5001`**
 
 ---
 
-## 🏋️ Training the YOLOv8 Detector
+## Training the YOLOv8 Detector
 
 Once labeling is complete, you can train a YOLO model using the custom dataset:
 
@@ -110,6 +110,6 @@ python train_yolo.py
 
 ---
 
-## 📈 Model Output
+## Model Output
 - Trained weights are saved in: `paper_bag_runs/detect_bags/weights/best.pt`
 - Visual predictions on test set are saved in: `test_predictions/`
