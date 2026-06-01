@@ -73,7 +73,7 @@ def setup_yolo_dataset(base_dir, train_ratio=0.8):
     print(f"Dataset YAML config generated at: {yaml_path}")
     return yaml_path
 
-def train_model(yaml_path, epochs=50):
+def train_model(yaml_path, epochs=100):
     # Import inside function to avoid loading heavy pytorch package if dataset setup fails
     import torch
     from ultralytics import YOLO
@@ -86,17 +86,22 @@ def train_model(yaml_path, epochs=50):
         device = 0
     print(f"Using training device: {device.upper() if isinstance(device, str) else 'CUDA GPU'}")
 
-    # Load YOLOv8 Nano model (pretrained on COCO, excellent starting point)
-    print("Loading pretrained YOLOv8n model...")
-    model = YOLO("yolov8n.pt")
+    # Load YOLOv8 Small model as requested
+    print("Loading pretrained YOLOv8s model...")
+    model = YOLO("yolov8s.pt")
 
     # Train model
     print(f"Starting training for {epochs} epochs...")
     results = model.train(
         data=str(yaml_path),
         epochs=epochs,
-        imgsz=640,
+        imgsz=1024,          # High resolution for precision
+        batch=8,             # YOLOv8s is lighter than YOLO26m, so we can use batch 8
         device=device,
+        patience=50,
+        cos_lr=True,
+        box=10.0,            # High penalty for localization errors
+        close_mosaic=25,     # Refine edges during the final phase
         project="paper_bag_runs",
         name="detect_bags"
     )
@@ -125,7 +130,7 @@ def run_test_inference(model, base_dir):
     results_dir.mkdir(exist_ok=True)
 
     for img_path in test_samples:
-        results = model.predict(source=str(img_path), save=False, imgsz=640)
+        results = model.predict(source=str(img_path), save=False, imgsz=1024)
         
         # Save output prediction visualization using plot()
         for r in results:
@@ -150,5 +155,5 @@ if __name__ == "__main__":
     
     yaml_config = setup_yolo_dataset(current_dir)
     if yaml_config:
-        trained_model, best_pt_path = train_model(yaml_config, epochs=30)
+        trained_model, best_pt_path = train_model(yaml_config, epochs=100)
         run_test_inference(trained_model, current_dir)

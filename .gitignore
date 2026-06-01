@@ -6,7 +6,8 @@ raw_heic/
 
 # YOLO pre-trained and trained models
 *.pt
-paper_bag_runs/
+!runs/detect/paper_bag_runs/detect_bags/**
+!runs/detect/paper_bag_runs/detect_bags-2/**
 yolo_dataset/
 test_predictions/
 
